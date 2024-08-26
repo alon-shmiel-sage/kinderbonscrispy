@@ -1,0 +1,210 @@
+<html>
+    <head>
+        <style>
+        @import url("https://fonts.googleapis.com/css?family=Raleway:900&display=swap");
+
+body {
+    margin: 0px;
+}
+
+@keyframes fadeInUp {
+  0% {
+    /* transform: translateY(100%); */
+    opacity: 0;
+  }
+  70% {
+    /* transform: translateY(0%); */
+    opacity: 1;
+  }
+}
+
+.fadeInUp-animation {
+  animation: 1.5s fadeInUp;
+}
+
+.kinder-container {
+    display: flex;
+}
+.hidden {
+    display: none;
+}
+.prize-subtitle {
+    text-align: center;
+    top: 125px !important;
+    font-size: 30px;
+    direction: rtl;
+}
+.container {
+    position: absolute;
+    margin: auto;
+    width: 100vw;
+    /* height: 80pt; */
+    top: 0;
+    bottom: 0;
+
+    filter: url(#threshold) blur(0.6px);
+}
+
+#text1,
+#text2 {
+    position: absolute;
+    width: 100%;
+    display: inline-block;
+
+    font-family: "Raleway", sans-serif;
+    font-size: 80pt;
+
+    text-align: center;
+
+    user-select: none;
+}
+
+        </style>
+    </head>
+    <body>
+        <div class="kinder-container">
+            <div>
+                <div class="container">
+                    <span id="text1"></span>
+                    <span id="text2"></span>
+                </div>
+                
+                <svg id="filters">
+                    <defs>
+                        <filter id="threshold">
+                            <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0
+                                                    0 1 0 0 0
+                                                    0 0 1 0 0
+                                                    0 0 0 255 -140" />
+                        </filter>
+                    </defs>
+                </svg>
+            </div>
+            <div class="container prize-subtitle hidden fadeInUp-animation"></div>
+        
+        </div>
+    </body>
+    <script>
+        const elts = {
+            text1: document.getElementById("text1"),
+            text2: document.getElementById("text2")
+        };
+
+        const colorLetter = (letter, color = "red") => {
+            return `<span style='color: ${color}'>${letter}</span>`
+        }
+
+        const isWinner = () => {
+            return  window.location.href.includes('kTnhj');
+        }
+        const getPrize = () => {
+            if (isWinner()) {
+                return "Winner".split('').map((letter, i) => i === 0 ? letter : colorLetter(letter, 'red')).join('');
+            }
+            return "Finger".split('').map((letter, i) => i === 0 ? letter : colorLetter(letter, 'red')).join('');
+        }
+        const texts = [
+            "Kinder".split('').map((letter, i) => i === 0 ? colorLetter(letter, 'red') : letter).join(''),
+            getPrize(),
+        ];
+
+        if (isWinner() || true) {
+            document.querySelector('.prize-subtitle').innerHTML = `
+            🎉 ברכות על זכייתכם המרגשת! 🎉
+                <br><br>
+חברת קינדר, המוכרת בזכות טעמיה הנפלאים, היא חברה איטלקית שהוקמה באיטליה.
+<br><br>
+שמות מוצרי החברה משלבים מילים משפות שונות, וכך גם מוצר הדגל שלה, קינדר בואנו, המורכב מהמילה הגרמנית "קינדר" (ילדים) ומהמילה הספרדית "בואנו" (טוב).
+<br>
+אם הצלחנו לחדש לכם, ייתכן שהספרדית שלכם זקוקה לרענון קל.
+<br><br>
+אתם והילדים שלכם פשוט חייבים לחוות את ספרד במלוא הדרה, ואין זמן מושלם מזה!
+<br>
+אז התחילו לארוז, הכינו את הדרכונים, כי בעוד מספר שבועות אתם ממריאים לברצלונה המדהימה! ✈️
+<br><br>
+המשיכו לחייך כי זה הזמן שלכם לזרוח ולדעת ולגעת בהכל, לטרוף את העולם, לא לפחד ליפול..
+                `; 
+        } else {
+            document.querySelector('.prize-subtitle').innerHTML = `נא לנסות שוב בעתיד...`;
+        }
+
+        const morphTime = 3;
+        const cooldownTime = 0.25;
+
+        let textIndex = texts.length - 1;
+        let time = new Date();
+        let morph = 0;
+        let cooldown = cooldownTime;
+
+        elts.text1.innerHTML = texts[textIndex % texts.length];
+        elts.text2.innerHTML = texts[(textIndex + 1) % texts.length];
+ 
+
+        setTimeout(() => {
+            document.querySelector('.prize-subtitle').classList.remove('hidden');
+        }, 3000);
+
+        function doMorph() {
+            
+            morph -= cooldown;
+            cooldown = 0;
+
+            let fraction = morph / morphTime;
+
+            if (fraction > 1) {
+                cooldown = cooldownTime;
+                fraction = 1;
+            }
+
+            setMorph(fraction);
+        }
+
+        function setMorph(fraction) {
+            elts.text2.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
+            elts.text2.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
+
+            fraction = 1 - fraction;
+            elts.text1.style.filter = `blur(${Math.min(8 / fraction - 8, 100)}px)`;
+            elts.text1.style.opacity = `${Math.pow(fraction, 0.4) * 100}%`;
+
+            elts.text1.innerHTML = texts[textIndex % texts.length];
+            elts.text2.innerHTML = texts[(textIndex + 1) % texts.length];
+        }
+
+        function doCooldown() {
+            morph = 0;
+
+            elts.text2.style.filter = "";
+            elts.text2.style.opacity = "100%";
+
+            elts.text1.style.filter = "";
+            elts.text1.style.opacity = "0%";
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            let newTime = new Date();
+            let shouldIncrementIndex = cooldown > 0;
+            let dt = (newTime - time) / 1000;
+            time = newTime;
+
+            cooldown -= dt;
+
+            if (cooldown <= 0) {
+                if (shouldIncrementIndex) {
+                    textIndex++;
+                }
+
+                doMorph();
+            } else {
+                doCooldown();
+            }
+        }
+
+        animate();
+    
+    </script>
+
+
+</html>
